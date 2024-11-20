@@ -1,10 +1,14 @@
 package main
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"time"
 
 	"github.com/r3labs/sse/v2"
@@ -26,23 +30,28 @@ func main() {
 		server.ServeHTTP(w, r)
 	})
 
-	garbageBin := GarbageBin{
-		Id:     "Z6AVN19H",
-		Status: "OK",
-		SensorData: SensorData{
-			Location: Location{
-				Lat: 105.7825,
-				Lng: 21.0284,
-			},
-			FillLevel: 40,
-		},
-		LastCollected: time.Now().Local().Format(time.DateTime),
-	}
+	msgCh := make(chan []byte)
+	go startMqttSub(msgCh)
 
 	simulateGarbageBins(server)
 
 	go func(server *sse.Server) {
 		for {
+			var msgData Data
+			d := json.NewDecoder(bytes.NewReader(<-msgCh))
+			err := d.Decode(&msgData)
+			if err != nil {
+				log.Println(err)
+			}
+			garbageBin := GarbageBin{
+				Id:     msgData.Id,
+				Status: "OK",
+				SensorData: SensorData{
+					Location:  msgData.Location,
+					FillLevel: msgData.FillLevel,
+				},
+				LastCollected: time.Now().Local().Format(time.DateTime),
+			}
 			data, err := json.Marshal(garbageBin)
 			if err != nil {
 				log.Println(err)
@@ -51,11 +60,25 @@ func main() {
 			server.Publish("messages", &sse.Event{
 				Data: data,
 			})
-			fmt.Println("Pushed")
+			fmt.Println("Pushed: ", string(data))
 
 			<-time.After(5 * time.Second)
 		}
 	}(server)
 
-	http.ListenAndServe(":8080", mux)
+	httpServer := &http.Server{Addr: ":8888", Handler: mux}
+	go func() {
+		log.Fatal(httpServer.ListenAndServe())
+	}()
+
+	// Setting up signal capturing
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt)
+
+	// Waiting for SIGINT (kill -2)
+	<-stop
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	log.Fatal(httpServer.Shutdown(ctx))
 }

@@ -2,7 +2,7 @@
 
 # Variables
 BINARY_NAME = iot-server 
-SOURCE_FILE = main.go garbage_bin.go util.go
+SOURCE_FILE = main.go garbage_bin.go util.go mqtt-sub.go
 
 # Build the binary
 build:

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"math/rand/v2"
 	"time"
 
 	"github.com/r3labs/sse/v2"
@@ -18,8 +17,8 @@ type GarbageBin struct {
 }
 
 type SensorData struct {
-	Location  Location `json:"location,omitempty"`
-	FillLevel int      `json:"fill_level,omitempty"`
+	Location  []float64 `json:"location,omitempty"`
+	FillLevel int       `json:"fill_level,omitempty"`
 }
 
 type Location struct {
@@ -33,10 +32,7 @@ func simulateGarbageBins(server *sse.Server) {
 			Id:     randomId(8),
 			Status: "OK",
 			SensorData: SensorData{
-				Location: Location{
-					Lat: 105.7858,
-					Lng: 21.0267,
-				},
+				Location:  []float64{105.7858, 21.0267},
 				FillLevel: 92,
 			},
 			LastCollected: time.Now().Add(-18 * time.Hour).Format(time.DateTime),
@@ -45,10 +41,7 @@ func simulateGarbageBins(server *sse.Server) {
 			Id:     randomId(8),
 			Status: "OK",
 			SensorData: SensorData{
-				Location: Location{
-					Lat: 105.7881,
-					Lng: 21.0267,
-				},
+				Location:  []float64{105.7881, 21.0267},
 				FillLevel: 92,
 			},
 			LastCollected: time.Now().Add(-18 * time.Hour).Format(time.DateTime),
@@ -57,10 +50,7 @@ func simulateGarbageBins(server *sse.Server) {
 			Id:     randomId(8),
 			Status: "OK",
 			SensorData: SensorData{
-				Location: Location{
-					Lat: 105.7907,
-					Lng: 21.0236,
-				},
+				Location:  []float64{105.7907, 21.0236},
 				FillLevel: 92,
 			},
 			LastCollected: time.Now().Add(-18 * time.Hour).Format(time.DateTime),
@@ -69,10 +59,7 @@ func simulateGarbageBins(server *sse.Server) {
 			Id:     randomId(8),
 			Status: "OK",
 			SensorData: SensorData{
-				Location: Location{
-					Lat: 105.7923,
-					Lng: 21.0275,
-				},
+				Location:  []float64{105.7923, 21.0275},
 				FillLevel: 92,
 			},
 			LastCollected: time.Now().Add(-18 * time.Hour).Format(time.DateTime),
@@ -80,21 +67,15 @@ func simulateGarbageBins(server *sse.Server) {
 	}
 
 	for _, garbageBin := range garbageBins {
-		go func() {
-			for {
-				data, err := json.Marshal(garbageBin)
-				if err != nil {
-					log.Println(err)
-				}
+		data, err := json.Marshal(garbageBin)
+		if err != nil {
+			log.Println(err)
+		}
 
-				server.Publish("messages", &sse.Event{
-					Data: data,
-				})
+		server.Publish("messages", &sse.Event{
+			Data: data,
+		})
 
-				fmt.Println("Pushed")
-
-				<-time.After(time.Duration(10+rand.IntN(10)) * time.Second)
-			}
-		}()
+		fmt.Println("Pushed")
 	}
 }

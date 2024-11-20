@@ -34,7 +34,7 @@ export default {
   },
 
   mounted() {
-    const sse = new EventSource('http://localhost:8080/events?stream=messages')
+    const sse = new EventSource('http://localhost:8888/events?stream=messages')
     sse.onmessage = this.updateTable
   },
 
