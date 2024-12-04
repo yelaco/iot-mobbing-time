@@ -17,7 +17,7 @@
         <td>{{ bin.lastCollected }}</td>
         <td>
           {{ bin.location }}
-          <button v-if="bin.location" style="margin: 10px">View in map</button>
+          <button v-if="bin.location" @click="viewInMap(bin.location)" style="margin: 10px">View in map</button>
         </td>
       </tr>
     </tbody>
@@ -68,6 +68,9 @@ export default {
 
       this.$emit('update-bins', updatedBins)
     },
+    viewInMap(binLocation) {
+      this.$emit('view-in-map', binLocation)
+    }
   },
 }
 </script>

@@ -12,9 +12,9 @@ import (
 )
 
 const (
-	broker   = "tcp://localhost:1883"
+	broker   = "tcp://test.mosquitto.org:1883"
 	clientID = "go-mqtt-subscriber"
-	topic    = "iot-messages"
+	topic    = "controlData"
 )
 
 var mqttMsgChan = make(chan mqtt.Message)

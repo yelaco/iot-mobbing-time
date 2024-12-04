@@ -126,6 +126,7 @@ export default {
 
     async function reloadMap(bins) {
       garbageBinLocationList = bins.map((bin) => bin.location)
+      console.log(garbageBinLocationList)
       garbageBins = turf.featureCollection(
         garbageBinLocationList.map((location) => turf.point(location)),
       )
@@ -241,9 +242,8 @@ export default {
       // Coordinates will include the current location of the truck,
       return `https://api.mapbox.com/optimized-trips/v1/mapbox/driving/${coordinates.join(
         ';',
-      )}?overview=full&steps=true&geometries=geojson&source=first&access_token=${
-        mapboxgl.accessToken
-      }`
+      )}?overview=full&steps=true&geometries=geojson&source=first&access_token=${mapboxgl.accessToken
+        }`
     }
 
     const updateLocation = () => this.$emit('update:modelValue', this.getLocation())
@@ -292,6 +292,9 @@ export default {
         zoom: this.map.getZoom(),
       }
     },
+    viewInMap(location) {
+      this.map.setCenter({ lng: location[0], lat: location[1] })
+    }
   },
 }
 </script>

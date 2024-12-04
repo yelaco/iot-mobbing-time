@@ -33,7 +33,7 @@ func main() {
 	msgCh := make(chan []byte)
 	go startMqttSub(msgCh)
 
-	simulateGarbageBins(server)
+	go simulateGarbageBins(server)
 
 	go func(server *sse.Server) {
 		for {

@@ -1,9 +1,14 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/r3labs/sse/v2"
@@ -66,16 +71,34 @@ func simulateGarbageBins(server *sse.Server) {
 		},
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+
 	for _, garbageBin := range garbageBins {
-		data, err := json.Marshal(garbageBin)
-		if err != nil {
-			log.Println(err)
-		}
+		go func() {
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				default:
+					data, err := json.Marshal(garbageBin)
+					if err != nil {
+						log.Println(err)
+					}
 
-		server.Publish("messages", &sse.Event{
-			Data: data,
-		})
+					server.Publish("messages", &sse.Event{
+						Data: data,
+					})
 
-		fmt.Println("Pushed")
+					fmt.Println("Pushed")
+					<-time.After(time.Duration(5+rand.Intn(10)) * time.Second)
+				}
+			}
+		}()
 	}
+
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
+	<-sigChan
+
+	cancel()
 }
