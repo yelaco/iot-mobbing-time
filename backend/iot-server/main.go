@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -28,7 +27,7 @@ func main() {
 	mux.HandleFunc("/events", func(w http.ResponseWriter, r *http.Request) {
 		go func() {
 			<-r.Context().Done()
-			println("The client is disconnected")
+			log.Println("The client is disconnected")
 		}()
 
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -38,7 +37,7 @@ func main() {
 
 	msgCh := make(chan []byte)
 	go startMqttSub(msgCh)
-	go simulateGarbageBins(server)
+	go simulateGarbageBins(server, msgCh)
 
 	influxCh := WriteToInfluxdb(5)
 	defer close(influxCh)
@@ -70,7 +69,7 @@ func main() {
 			server.Publish("messages", &sse.Event{
 				Data: data,
 			})
-			fmt.Println("Pushed: ", string(data))
+			log.Println("SSE: ", string(data))
 		}
 	}(server)
 

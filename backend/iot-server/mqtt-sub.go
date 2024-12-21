@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -40,7 +39,7 @@ func processMsg(ctx context.Context, input <-chan mqtt.Message) chan mqtt.Messag
 				if !ok {
 					return
 				}
-				fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
+				log.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
 				out <- msg
 			case <-ctx.Done():
 				return
@@ -51,11 +50,11 @@ func processMsg(ctx context.Context, input <-chan mqtt.Message) chan mqtt.Messag
 }
 
 var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
-	fmt.Println("Connected to MQTT Broker")
+	log.Println("Connected to MQTT Broker")
 }
 
 var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
-	fmt.Printf("Connection lost: %v", err)
+	log.Printf("Connection lost: %v", err)
 }
 
 func startMqttSub(ch chan []byte) {
@@ -85,7 +84,7 @@ func startMqttSub(ch chan []byte) {
 	// Subscribe to the topic
 	token := client.Subscribe(topic, 1, nil)
 	token.Wait()
-	fmt.Printf("Subscribed to topic: %s\n", topic)
+	log.Printf("Subscribed to topic: %s\n", topic)
 
 	// Wait for interrupt signal to gracefully shutdown the subscriber
 	sigChan := make(chan os.Signal, 1)
@@ -96,11 +95,11 @@ func startMqttSub(ch chan []byte) {
 	cancel()
 
 	// Unsubscribe and disconnect
-	fmt.Println("Unsubscribing and disconnecting...")
+	log.Println("Unsubscribing and disconnecting...")
 	client.Unsubscribe(topic)
 	client.Disconnect(250)
 
 	// Wait for the goroutine to finish
 	wg.Wait()
-	fmt.Println("Goroutine terminated, exiting...")
+	log.Println("Goroutine terminated, exiting...")
 }

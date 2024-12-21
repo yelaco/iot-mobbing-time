@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"math/rand"
 	"os"
@@ -22,7 +21,7 @@ type GarbageBin struct {
 	LastCollected string    `json:"last_collected,omitempty"`
 }
 
-func simulateGarbageBins(server *sse.Server) {
+func simulateGarbageBins(server *sse.Server, msgCh chan []byte) {
 	garbageBins := []GarbageBin{
 		{
 			Id:            randomId(8),
@@ -63,17 +62,14 @@ func simulateGarbageBins(server *sse.Server) {
 				case <-ctx.Done():
 					return
 				default:
+					<-time.After(time.Duration(5+rand.Intn(10)) * time.Second)
+
 					data, err := json.Marshal(garbageBin)
 					if err != nil {
 						log.Println(err)
 					}
 
-					server.Publish("messages", &sse.Event{
-						Data: data,
-					})
-
-					fmt.Println("Pushed")
-					<-time.After(time.Duration(5+rand.Intn(10)) * time.Second)
+					msgCh <- data
 				}
 			}
 		}()
