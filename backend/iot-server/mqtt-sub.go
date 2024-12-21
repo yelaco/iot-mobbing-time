@@ -21,7 +21,7 @@ type Data struct {
 const (
 	broker   = "tcp://localhost:1883"
 	clientID = "go-mqtt-subscriber"
-	topic    = "iot-messages"
+	topic    = "iot-mobbing-time"
 )
 
 var mqttMsgChan = make(chan mqtt.Message)

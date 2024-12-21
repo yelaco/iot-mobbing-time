@@ -11,10 +11,16 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/r3labs/sse/v2"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	server := sse.New()
 	server.CreateStream("messages")
 
@@ -32,8 +38,10 @@ func main() {
 
 	msgCh := make(chan []byte)
 	go startMqttSub(msgCh)
-
 	go simulateGarbageBins(server)
+
+	influxCh := WriteToInfluxdb(5)
+	defer close(influxCh)
 
 	go func(server *sse.Server) {
 		for {
@@ -44,25 +52,25 @@ func main() {
 				log.Println(err)
 			}
 			garbageBin := GarbageBin{
-				Id:     msgData.Id,
-				Status: "OK",
-				SensorData: SensorData{
-					Location:  msgData.Location,
-					FillLevel: msgData.FillLevel,
-				},
+				Id:            msgData.Id,
+				Status:        "OK",
+				Location:      msgData.Location,
+				FillLevel:     msgData.FillLevel,
 				LastCollected: time.Now().Local().Format(time.DateTime),
 			}
+
+			// Save data to database
+			influxCh <- garbageBin
+
+			// Send data to frontend
 			data, err := json.Marshal(garbageBin)
 			if err != nil {
 				log.Println(err)
 			}
-
 			server.Publish("messages", &sse.Event{
 				Data: data,
 			})
 			fmt.Println("Pushed: ", string(data))
-
-			<-time.After(5 * time.Second)
 		}
 	}(server)
 

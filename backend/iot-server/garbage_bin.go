@@ -15,58 +15,41 @@ import (
 )
 
 type GarbageBin struct {
-	Id            string     `json:"id,omitempty"`
-	Status        string     `json:"status,omitempty"`
-	SensorData    SensorData `json:"sensor_data,omitempty"`
-	LastCollected string     `json:"last_collected,omitempty"`
-}
-
-type SensorData struct {
-	Location  []float64 `json:"location,omitempty"`
-	FillLevel int       `json:"fill_level,omitempty"`
-}
-
-type Location struct {
-	Lat float64 `json:"lat,omitempty"`
-	Lng float64 `json:"lng,omitempty"`
+	Id            string    `json:"id,omitempty"`
+	Status        string    `json:"status,omitempty"`
+	Location      []float64 `json:"location,omitempty"`
+	FillLevel     int       `json:"fill_level,omitempty"`
+	LastCollected string    `json:"last_collected,omitempty"`
 }
 
 func simulateGarbageBins(server *sse.Server) {
 	garbageBins := []GarbageBin{
 		{
-			Id:     randomId(8),
-			Status: "OK",
-			SensorData: SensorData{
-				Location:  []float64{105.7858, 21.0267},
-				FillLevel: 92,
-			},
+			Id:            randomId(8),
+			Status:        "OK",
+			Location:      []float64{105.7858, 21.0267},
+			FillLevel:     92,
 			LastCollected: time.Now().Add(-18 * time.Hour).Format(time.DateTime),
 		},
 		{
-			Id:     randomId(8),
-			Status: "OK",
-			SensorData: SensorData{
-				Location:  []float64{105.7881, 21.0267},
-				FillLevel: 92,
-			},
+			Id:            randomId(8),
+			Status:        "OK",
+			Location:      []float64{105.7881, 21.0267},
+			FillLevel:     92,
 			LastCollected: time.Now().Add(-18 * time.Hour).Format(time.DateTime),
 		},
 		{
-			Id:     randomId(8),
-			Status: "OK",
-			SensorData: SensorData{
-				Location:  []float64{105.7907, 21.0236},
-				FillLevel: 92,
-			},
+			Id:            randomId(8),
+			Status:        "OK",
+			Location:      []float64{105.7907, 21.0236},
+			FillLevel:     92,
 			LastCollected: time.Now().Add(-18 * time.Hour).Format(time.DateTime),
 		},
 		{
-			Id:     randomId(8),
-			Status: "OK",
-			SensorData: SensorData{
-				Location:  []float64{105.7923, 21.0275},
-				FillLevel: 92,
-			},
+			Id:            randomId(8),
+			Status:        "OK",
+			Location:      []float64{105.7923, 21.0275},
+			FillLevel:     92,
 			LastCollected: time.Now().Add(-18 * time.Hour).Format(time.DateTime),
 		},
 	}
