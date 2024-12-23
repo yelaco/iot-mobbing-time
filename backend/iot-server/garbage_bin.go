@@ -9,8 +9,6 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-
-	"github.com/r3labs/sse/v2"
 )
 
 type GarbageBin struct {
@@ -21,41 +19,41 @@ type GarbageBin struct {
 	LastCollected string    `json:"last_collected,omitempty"`
 }
 
-func simulateGarbageBins(server *sse.Server, msgCh chan []byte) {
-	garbageBins := []GarbageBin{
+func simulateGarbageBins(msgCh chan []byte, mapLastCollectedTime map[string]time.Time) {
+	simData := []Data{
 		{
-			Id:            randomId(8),
-			Status:        "OK",
-			Location:      []float64{105.7858, 21.0267},
-			FillLevel:     92,
-			LastCollected: time.Now().Add(-18 * time.Hour).Format(time.DateTime),
+			Id:        randomId(8),
+			Location:  []float64{105.7858, 21.0267},
+			FillLevel: 92,
+			Collected: false,
 		},
 		{
-			Id:            randomId(8),
-			Status:        "OK",
-			Location:      []float64{105.7881, 21.0267},
-			FillLevel:     92,
-			LastCollected: time.Now().Add(-18 * time.Hour).Format(time.DateTime),
+			Id:        randomId(8),
+			Location:  []float64{105.7881, 21.0267},
+			FillLevel: 92,
+			Collected: false,
 		},
 		{
-			Id:            randomId(8),
-			Status:        "OK",
-			Location:      []float64{105.7907, 21.0236},
-			FillLevel:     92,
-			LastCollected: time.Now().Add(-18 * time.Hour).Format(time.DateTime),
+			Id:        randomId(8),
+			Location:  []float64{105.7907, 21.0236},
+			FillLevel: 92,
+			Collected: false,
 		},
 		{
-			Id:            randomId(8),
-			Status:        "OK",
-			Location:      []float64{105.7923, 21.0275},
-			FillLevel:     92,
-			LastCollected: time.Now().Add(-18 * time.Hour).Format(time.DateTime),
+			Id:        randomId(8),
+			Location:  []float64{105.7923, 21.0275},
+			FillLevel: 92,
+			Collected: false,
 		},
+	}
+
+	for _, data := range simData {
+		mapLastCollectedTime[data.Id] = time.Now().Local().Add(-18 * time.Hour)
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	for _, garbageBin := range garbageBins {
+	for _, data := range simData {
 		go func() {
 			for {
 				select {
@@ -64,7 +62,7 @@ func simulateGarbageBins(server *sse.Server, msgCh chan []byte) {
 				default:
 					<-time.After(time.Duration(5+rand.Intn(10)) * time.Second)
 
-					data, err := json.Marshal(garbageBin)
+					data, err := json.Marshal(data)
 					if err != nil {
 						log.Println(err)
 					}

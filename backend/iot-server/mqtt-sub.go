@@ -15,6 +15,7 @@ type Data struct {
 	Id        string    `json:"id,omitempty"`
 	FillLevel int       `json:"fill_level,omitempty"`
 	Location  []float64 `json:"location,omitempty"`
+	Collected bool      `json:"collected",omitempty`
 }
 
 const (

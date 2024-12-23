@@ -35,9 +35,10 @@ func main() {
 		server.ServeHTTP(w, r)
 	})
 
+	mapLastCollectedTime := make(map[string]time.Time, 5)
 	msgCh := make(chan []byte)
 	go startMqttSub(msgCh)
-	go simulateGarbageBins(server, msgCh)
+	go simulateGarbageBins(msgCh, mapLastCollectedTime)
 
 	influxCh := WriteToInfluxdb(5)
 	defer close(influxCh)
@@ -50,12 +51,20 @@ func main() {
 			if err != nil {
 				log.Println(err)
 			}
+
+			var lastCollectedTime time.Time
+			if msgData.Collected {
+				lastCollectedTime := time.Now().Local()
+				mapLastCollectedTime[msgData.Id] = lastCollectedTime
+			} else if v, ok := mapLastCollectedTime[msgData.Id]; ok {
+				lastCollectedTime = v
+			}
 			garbageBin := GarbageBin{
 				Id:            msgData.Id,
 				Status:        "OK",
 				Location:      msgData.Location,
 				FillLevel:     msgData.FillLevel,
-				LastCollected: time.Now().Local().Format(time.DateTime),
+				LastCollected: lastCollectedTime.Format(time.DateTime),
 			}
 
 			// Save data to database
