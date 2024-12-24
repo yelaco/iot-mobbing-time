@@ -16,5 +16,8 @@ run: build
 clean:
 	rm -f $(BINARY_NAME)
 
+build-windows:
+	GOOS=windows GOARCH=amd64 go build $(BINARY_NAME)
+
 # Default target
 all: build run

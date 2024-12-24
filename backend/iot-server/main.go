@@ -59,9 +59,15 @@ func main() {
 			} else if v, ok := mapLastCollectedTime[msgData.Id]; ok {
 				lastCollectedTime = v
 			}
+			status := "OK"
+			if msgData.FillLevel >= 80 {
+				status = "FULL"
+			} else if msgData.FillLevel >= 50 {
+				status = "HALF"
+			}
 			garbageBin := GarbageBin{
 				Id:            msgData.Id,
-				Status:        "OK",
+				Status:        status,
 				Location:      msgData.Location,
 				FillLevel:     msgData.FillLevel,
 				LastCollected: lastCollectedTime.Format(time.DateTime),
