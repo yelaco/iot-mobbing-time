@@ -24,7 +24,7 @@ func simulateGarbageBins(msgCh chan []byte, mapLastCollectedTime map[string]time
 		{
 			Id:        randomId(8),
 			Location:  []float64{105.7858, 21.0267},
-			FillLevel: 92,
+			FillLevel: 84,
 			Collected: false,
 		},
 		{
@@ -36,13 +36,13 @@ func simulateGarbageBins(msgCh chan []byte, mapLastCollectedTime map[string]time
 		{
 			Id:        randomId(8),
 			Location:  []float64{105.7907, 21.0236},
-			FillLevel: 92,
+			FillLevel: 91,
 			Collected: false,
 		},
 		{
 			Id:        randomId(8),
 			Location:  []float64{105.7923, 21.0275},
-			FillLevel: 92,
+			FillLevel: 87,
 			Collected: false,
 		},
 	}
@@ -60,14 +60,14 @@ func simulateGarbageBins(msgCh chan []byte, mapLastCollectedTime map[string]time
 				case <-ctx.Done():
 					return
 				default:
-					<-time.After(time.Duration(5+rand.Intn(10)) * time.Second)
-
 					data, err := json.Marshal(data)
 					if err != nil {
 						log.Println(err)
 					}
 
 					msgCh <- data
+
+					<-time.After(time.Duration(5+rand.Intn(5)) * time.Second)
 				}
 			}
 		}()
