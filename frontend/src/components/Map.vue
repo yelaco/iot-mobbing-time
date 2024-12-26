@@ -24,6 +24,7 @@ export default {
 
     const truckLocation = [105.7913, 21.0297]
     let garbageBinLocationList = []
+    let toCollectList = []
 
     const map = new mapboxgl.Map({
       container: this.$refs.mapContainer,
@@ -126,7 +127,12 @@ export default {
 
     async function reloadMap(bins) {
       garbageBinLocationList = bins.map((bin) => bin.location)
-      console.log(garbageBinLocationList)
+      toCollectList = bins
+        .filter((item) => {
+          return item.fill_level >= 80
+        })
+        .map((bin) => bin.location)
+      console.log(toCollectList)
       garbageBins = turf.featureCollection(
         garbageBinLocationList.map((location) => turf.point(location)),
       )
@@ -236,14 +242,16 @@ export default {
     // Here you'll specify all the parameters necessary for requesting a response from the Optimization API
     function assembleQueryURL() {
       // Store the location of the truck in a constant called coordinates
+      console.log(toCollectList)
       const coordinates = [truckLocation, ...garbageBinLocationList]
 
       // Set the profile to `driving`
       // Coordinates will include the current location of the truck,
       return `https://api.mapbox.com/optimized-trips/v1/mapbox/driving/${coordinates.join(
         ';',
-      )}?overview=full&steps=true&geometries=geojson&source=first&access_token=${mapboxgl.accessToken
-        }`
+      )}?overview=full&steps=true&geometries=geojson&source=first&access_token=${
+        mapboxgl.accessToken
+      }`
     }
 
     const updateLocation = () => this.$emit('update:modelValue', this.getLocation())
@@ -294,7 +302,7 @@ export default {
     },
     viewInMap(location) {
       this.map.setCenter({ lng: location[0], lat: location[1] })
-    }
+    },
   },
 }
 </script>

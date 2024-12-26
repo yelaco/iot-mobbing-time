@@ -17,7 +17,9 @@
         <td>{{ bin.lastCollected }}</td>
         <td>
           {{ bin.location }}
-          <button v-if="bin.location" @click="viewInMap(bin.location)" style="margin: 10px">View in map</button>
+          <button v-if="bin.location" @click="viewInMap(bin.location)" style="margin: 10px">
+            View in map
+          </button>
         </td>
       </tr>
     </tbody>
@@ -48,9 +50,9 @@ export default {
           return {
             ...bin,
             status: binUpdate.status,
-            fillLevel: binUpdate.sensor_data.fill_level,
+            fillLevel: binUpdate.fill_level,
             lastCollected: binUpdate.last_collected,
-            location: Object.values(binUpdate.sensor_data.location),
+            location: Object.values(binUpdate.location),
           }
         }
 
@@ -61,7 +63,7 @@ export default {
         updatedBins.push({
           id: binUpdate.id,
           status: binUpdate.status,
-          fillLevel: binUpdate.sensor_data.fill_level,
+          fillLevel: binUpdate.fill_level,
           lastCollected: binUpdate.last_collected,
         })
       }
@@ -70,7 +72,7 @@ export default {
     },
     viewInMap(binLocation) {
       this.$emit('view-in-map', binLocation)
-    }
+    },
   },
 }
 </script>
