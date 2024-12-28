@@ -44,31 +44,33 @@ export default {
     updateTable(event) {
       let binUpdate = JSON.parse(event.data)
       let binFound = false
-      const updatedBins = this.bins.map((bin) => {
-        if (bin.id === binUpdate.id) {
-          binFound = true
-          return {
-            ...bin,
+      if (binUpdate.location.length != 0) {
+        const updatedBins = this.bins.map((bin) => {
+          if (bin.id === binUpdate.id) {
+            binFound = true
+            return {
+              ...bin,
+              status: binUpdate.status,
+              fillLevel: binUpdate.fill_level,
+              lastCollected: binUpdate.last_collected,
+              location: Object.values(binUpdate.location),
+            }
+          }
+
+          return bin
+        })
+
+        if (!binFound) {
+          updatedBins.push({
+            id: binUpdate.id,
             status: binUpdate.status,
             fillLevel: binUpdate.fill_level,
             lastCollected: binUpdate.last_collected,
-            location: Object.values(binUpdate.location),
-          }
+          })
         }
 
-        return bin
-      })
-
-      if (!binFound) {
-        updatedBins.push({
-          id: binUpdate.id,
-          status: binUpdate.status,
-          fillLevel: binUpdate.fill_level,
-          lastCollected: binUpdate.last_collected,
-        })
+        this.$emit('update-bins', updatedBins)
       }
-
-      this.$emit('update-bins', updatedBins)
     },
     viewInMap(binLocation) {
       this.$emit('view-in-map', binLocation)

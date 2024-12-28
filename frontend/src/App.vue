@@ -10,7 +10,9 @@
             Bearing: {{ location.bearing.toFixed(2) }} |
           </template>
           <template v-if="location.pitch"> Pitch: {{ location.pitch.toFixed(2) }} | </template>
-          <button @click="location = { lng: 105.78225, lat: 21.02876, bearing: 0, pitch: 0, zoom: 15.69 }">
+          <button
+            @click="location = { lng: 105.78225, lat: 21.02876, bearing: 0, pitch: 0, zoom: 15.69 }"
+          >
             Reset
           </button>
           | <button @click="$refs.mapComponent.reloadMap(bins)">Reload map</button> |
@@ -59,7 +61,7 @@ export default {
     },
     viewBinInMap(binLocation) {
       this.$refs.mapComponent.viewInMap(binLocation)
-    }
+    },
   },
 }
 </script>
